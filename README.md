@@ -24,7 +24,7 @@ psql "$DATABASE_URL_UNPOOLED" -f db/demo_seed.sql
 
 The application will later use the pooled `DATABASE_URL` from `.env.local`.
 
-Power BI instructions are in [docs/POWER_BI.md](docs/POWER_BI.md).
+Power BI connection instructions are in [docs/POWER_BI.md](docs/POWER_BI.md), and the faculty dashboard plan is in [docs/POWER_BI_DASHBOARDS.md](docs/POWER_BI_DASHBOARDS.md). SCD Type 2 history is implemented in `db/migrations/002_scd2_history.sql` and maintained automatically by `db/migrations/003_scd2_maintenance.sql`.
 
 ## Neon
 
