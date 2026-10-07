@@ -20,6 +20,7 @@ The schema foundation is in `db/migrations/001_initial_schema.sql`, with histori
 psql "$DATABASE_URL_UNPOOLED" -f db/migrations/001_initial_schema.sql
 psql "$DATABASE_URL_UNPOOLED" -f db/seed.sql
 psql "$DATABASE_URL_UNPOOLED" -f db/demo_seed.sql
+psql "$DATABASE_URL_UNPOOLED" -f db/rich_demo_seed.sql
 ```
 
 The application will later use the pooled `DATABASE_URL` from `.env.local`.
