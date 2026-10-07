@@ -44,7 +44,8 @@ The report currently has the seven analytics views loaded as its model. The repo
 
 - Current versus historical commodity versions from `v_commodity_history`.
 - User profile changes from `v_user_history`.
-- Effective-date timeline using `valid_from` and `valid_to`.
+- Effective-date timeline using `from_date` and `to_date`.
+- Current rows have `to_date = infinity` and `current_flag = 'Y'`; closed rows have a real closing `to_date` and `current_flag = 'N'`.
 - A card showing current-version count versus total historical-version count.
 
 ## Important limitation
