@@ -6,7 +6,7 @@ Every public function takes an open cursor and runs inside the caller's
 transaction; the caller commits.
 """
 
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import InvalidOperation, ROUND_HALF_UP, Decimal
 import json
 import random
 from uuid import uuid4
@@ -471,6 +471,15 @@ SCENARIO = [
 ]
 
 
+def _same_val(a, b) -> bool:
+    if a is None or b is None:
+        return a == b
+    try:
+        return D(str(a)) == D(str(b))
+    except InvalidOperation:
+        return str(a) == str(b)
+
+
 def run_step(cur, index: int) -> dict:
     step = SCENARIO[index]
     kind = step["kind"]
@@ -499,7 +508,7 @@ def run_step(cur, index: int) -> dict:
         cur.execute("SELECT * FROM commodities WHERE symbol = %s", (step["symbol"],))
         current = cur.fetchone()
         first = step["options"][0]
-        choice = step["options"][1] if all(D(str(current[k])) == D(str(v)) for k, v in first.items()) else first
+        choice = step["options"][1] if all(_same_val(current[k], v) for k, v in first.items()) else first
         result = update_commodity(cur, step["symbol"], choice, step["reason"])
     else:
         raise EngineError(f"Unknown step kind {kind}")
