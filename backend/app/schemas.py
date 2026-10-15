@@ -77,3 +77,37 @@ class Overview(ApiModel):
     listed_commodities: int
     market_change_pct: Decimal
 
+
+
+class SimOrder(BaseModel):
+    trader_id: UUID
+    symbol: str = Field(min_length=2, max_length=30)
+    side: Literal["buy", "sell"]
+    order_type: Literal["market", "limit"] = "market"
+    price: Decimal | None = Field(default=None, gt=0)
+    quantity: Decimal = Field(gt=0)
+    motive: str | None = None
+
+
+class ProfileUpdate(BaseModel):
+    reason: str = Field(min_length=3, max_length=200)
+    full_name: str | None = None
+    phone: str | None = None
+    trader_type: str | None = None
+    organisation: str | None = None
+    address_line: str | None = None
+    city: str | None = None
+    state: str | None = None
+    pincode: str | None = None
+    risk_appetite: str | None = None
+    kyc_tier: str | None = None
+    experience_level: str | None = None
+    broker_id: UUID | None = None
+
+
+class CommodityUpdate(BaseModel):
+    reason: str = Field(min_length=3, max_length=200)
+    name: str | None = None
+    description: str | None = None
+    tick_size: Decimal | None = Field(default=None, gt=0)
+    minimum_order_quantity: Decimal | None = Field(default=None, gt=0)
