@@ -32,9 +32,18 @@ export const compactMoney = (value) => {
 }
 export const qty = (value) => num(value).toLocaleString('en-IN', { maximumFractionDigits: 2 })
 export const signed = (value, digits = 2) => `${num(value) >= 0 ? '+' : ''}${num(value).toFixed(digits)}`
-export const fmtTime = (value) => new Date(value).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-export const isOpenEnded = (value) => new Date(value).getUTCFullYear() >= 9999
-export const fmtStamp = (value) => isOpenEnded(value) ? '∞' : new Date(value).toLocaleString('en-IN', {
-  day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit',
-})
+export const fmtTime = (value) => {
+  if (!value) return '—'
+  const d = new Date(value)
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+}
+export const isOpenEnded = (value) => Boolean(value) && (value === 'infinity' || value === '+infinity' || new Date(value).getUTCFullYear() >= 9999)
+export const fmtStamp = (value) => {
+  if (isOpenEnded(value)) return '∞'
+  if (!value) return '—'
+  const d = new Date(value)
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString('en-IN', {
+    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit',
+  })
+}
 export const initials = (name = '') => name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase()
