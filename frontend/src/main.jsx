@@ -46,13 +46,19 @@ function App() {
   const [orders, setOrders] = useState([])
   const [error, setError] = useState('')
   const [refreshing, setRefreshing] = useState(false)
+  const [connectionStatus, setConnectionStatus] = useState('connecting')
 
   const load = async () => {
     setRefreshing(true); setError('')
+    if (connectionStatus !== 'online') setConnectionStatus('connecting')
     try {
       const [o, c, p, t, od] = await Promise.all([get('/overview'), get('/commodities'), get('/market/prices?limit=60'), get('/trades?limit=12'), get('/orders?limit=12')])
       setOverview(o); setCommodities(c); setPrices(p); setTrades(t); setOrders(od)
-    } catch (e) { setError('API is not reachable. Start the FastAPI server to load live Neon data.') }
+      setConnectionStatus('online')
+    } catch (e) {
+      setError('API is not reachable. Start the FastAPI server to load live Neon data.')
+      setConnectionStatus('offline')
+    }
     finally { setRefreshing(false) }
   }
   useEffect(() => { load() }, [tab])
@@ -64,7 +70,10 @@ function App() {
       <div className="brand"><div className="brand-mark">N</div><div><strong>NCDEX</strong><span>Trading simulation</span></div></div>
       <div className="workspace-label">COMMAND CENTER</div>
       <nav>{nav.map(([id,label,icon]) => <button key={id} className={tab===id?'active':''} onClick={() => setTab(id)}><span>{icon}</span>{label}</button>)}</nav>
-      <div className="sidebar-footer"><div className="status-dot"/> <span>Neon database online</span></div>
+      <div className="sidebar-footer">
+        <div className={`status-dot ${connectionStatus}`}/>
+        <span>{connectionStatus === 'connecting' ? 'Connecting to database…' : connectionStatus === 'online' ? 'Neon database online' : 'Neon database offline'}</span>
+      </div>
     </aside>
     <main className="main">
       <header className="topbar"><div><p className="eyebrow">GROUP 100 · ACADEMIC YEAR 2026–27</p><h1>{tab === 'overview' ? 'Market command center' : tab === 'live' ? 'Live exchange simulation' : nav.find(n => n[0] === tab)?.[1]}</h1></div><div className="header-actions"><span className="live-pill"><i/> LIVE SIMULATION</span><button className="refresh" onClick={load}>{refreshing ? 'Refreshing…' : '↻ Refresh data'}</button><div className="avatar">G100</div></div></header>
