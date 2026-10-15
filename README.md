@@ -21,6 +21,8 @@ psql "$DATABASE_URL_UNPOOLED" -f db/migrations/001_initial_schema.sql
 psql "$DATABASE_URL_UNPOOLED" -f db/seed.sql
 psql "$DATABASE_URL_UNPOOLED" -f db/demo_seed.sql
 psql "$DATABASE_URL_UNPOOLED" -f db/rich_demo_seed.sql
+psql "$DATABASE_URL_UNPOOLED" -f db/migrations/002_scd2_history.sql
+psql "$DATABASE_URL_UNPOOLED" -f db/migrations/003_scd2_maintenance.sql
 psql "$DATABASE_URL_UNPOOLED" -f db/migrations/004_scd2_infinity_dates.sql
 psql "$DATABASE_URL_UNPOOLED" -f db/scd_demo_seed.sql
 psql "$DATABASE_URL_UNPOOLED" -f db/migrations/005_live_simulation.sql
