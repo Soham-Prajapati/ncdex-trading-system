@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from threading import Lock
 from typing import Any
 from uuid import UUID
@@ -6,11 +7,21 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import engine
-from .db import connection, fetch_all, fetch_one
+from .config import get_settings
+from .db import close_pool, connection, fetch_all, fetch_one, open_pool
 from .schemas import (Commodity, CommodityUpdate, MarketPrice, Order, OrderCreate, Overview, ProfileUpdate,
                       SimOrder, Trade)
 
-app = FastAPI(title="NCDEX Trading System API", version="0.2.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    open_pool()
+    yield
+    close_pool()
+
+
+settings = get_settings()
+app = FastAPI(title=settings.api_title, version=settings.api_version, lifespan=lifespan)
 # The demo is opened from a laptop and a phone/tablet on the same network, so any origin may read it.
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
