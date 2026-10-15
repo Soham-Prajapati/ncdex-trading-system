@@ -8,6 +8,21 @@ import { PortfolioPage, TradersScd } from './traders'
 
 const POWER_BI_URL = 'https://app.powerbi.com/groups/82cf6b9e-a1b0-401f-a341-40b1c99117c1/reports/455db239-d0fb-4ee2-836e-c094fd96d94e'
 
+function formatPct(value) {
+  if (value == null || value === '') return '0%'
+  const n = Number(value)
+  if (Number.isNaN(n) || n === 0) return '0%'
+  const formatted = parseFloat(n.toFixed(2))
+  if (formatted === 0) return '0%'
+  return `${formatted > 0 ? '+' : ''}${formatted}%`
+}
+
+function formatTradeTime(value) {
+  if (!value) return '—'
+  const d = new Date(value)
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString('en-IN')
+}
+
 function Sparkline({ values = [] }) {
   if (!values.length) return <div className="empty-chart">No market series yet</div>
   const min = Math.min(...values), max = Math.max(...values), span = max - min || 1
@@ -59,7 +74,7 @@ function App() {
       {tab === 'overview' && <>
         <section className="hero"><div><p className="eyebrow light">NATIONAL COMMODITY & DERIVATIVES EXCHANGE</p><h2>Trade smarter.<br/><em>Learn bigger.</em></h2><p className="hero-copy">A transparent simulation of commodity markets, built for understanding order flow, risk, and opportunity.</p></div><div className="hero-orbit"><div className="orbit-ring ring-one"/><div className="orbit-ring ring-two"/><div className="orbit-core">₹<strong>7.2K</strong><small>cotton / bale</small></div></div></section>
         <section className="metric-grid">{[['Total traded notional',money(overview?.traded_notional),'↗ 12.4%','teal'],['Executed trades',overview?.total_trades || 0,'Today','purple'],['Active traders',overview?.active_traders || 0,'Across 3 commodities','yellow'],['Market movement',`${Number(overview?.market_change_pct || 0).toFixed(2)}%`,'Latest close','blue']].map(([label,value,detail,color]) => <div className={`metric-card ${color}`} key={label}><span>{label}</span><strong>{value}</strong><small>{detail}</small></div>)}</section>
-        <section className="content-grid"><div className="panel wide"><div className="panel-head"><div><p className="eyebrow">PRICE PERFORMANCE</p><h3>Cotton futures</h3></div><span className="chart-tag">COTTON · 14D</span></div><div className="chart-value">{money(cotton.at(-1)?.close_price)} <span>+{Number(cotton.at(-1)?.daily_change_pct || 0).toFixed(2)}%</span></div><Sparkline values={cotton.map(p => Number(p.close_price))}/><div className="axis"><span>01 Sep</span><span>07 Sep</span><span>14 Sep 2026</span></div></div><div className="panel"><div className="panel-head"><div><p className="eyebrow">LISTED CONTRACTS</p><h3>Market board</h3></div><button className="text-button" onClick={() => setTab('market')}>View all →</button></div><div className="commodity-list">{commodities.map(c => <div className="commodity-row" key={c.symbol}><div className="commodity-icon">{c.symbol[0]}</div><div><strong>{c.name}</strong><small>{c.symbol} · per {c.unit}</small></div><div className="commodity-price"><strong>{money(c.current_price)}</strong><small className={Number(c.daily_change_pct) >= 0 ? 'positive':'negative'}>{Number(c.daily_change_pct || 0).toFixed(2)}%</small></div></div>)}</div></div></section>
+        <section className="content-grid"><div className="panel wide"><div className="panel-head"><div><p className="eyebrow">PRICE PERFORMANCE</p><h3>Cotton futures</h3></div><span className="chart-tag">COTTON · 14D</span></div><div className="chart-value">{money(cotton.at(-1)?.close_price)} <span>{formatPct(cotton.at(-1)?.daily_change_pct)}</span></div><Sparkline values={cotton.map(p => Number(p.close_price))}/><div className="axis"><span>01 Sep</span><span>07 Sep</span><span>14 Sep 2026</span></div></div><div className="panel"><div className="panel-head"><div><p className="eyebrow">LISTED CONTRACTS</p><h3>Market board</h3></div><button className="text-button" onClick={() => setTab('market')}>View all →</button></div><div className="commodity-list">{commodities.map(c => <div className="commodity-row" key={c.symbol}><div className="commodity-icon">{c.symbol[0]}</div><div><strong>{c.name}</strong><small>{c.symbol} · per {c.unit}</small></div><div className="commodity-price"><strong>{money(c.current_price)}</strong><small className={Number(c.daily_change_pct) >= 0 ? 'positive':'negative'}>{Number(c.daily_change_pct || 0).toFixed(2)}%</small></div></div>)}</div></div></section>
         <section className="content-grid bottom"><div className="panel wide"><div className="panel-head"><div><p className="eyebrow">RECENT EXECUTION</p><h3>Latest trades</h3></div><button className="text-button" onClick={() => setTab('orders')}>Open blotter →</button></div><TradeTable rows={trades}/></div><div className="panel insight"><div className="insight-icon">✦</div><p className="eyebrow">LEARNING SIGNAL</p><h3>Price-time priority is working.</h3><p>Orders are matched by best price first, then earliest submission time—just like a real exchange order book.</p><button className="outline-button">Explore order matching</button></div></section>
       </>}
       {tab === 'market' && <Page title="Market watch" subtitle="Historical prices and live contract snapshots"><div className="market-grid">{commodities.map(c => <div className="market-card" key={c.symbol}><div className="commodity-icon large">{c.symbol[0]}</div><p className="eyebrow">{c.symbol}</p><h3>{c.name}</h3><div className="market-card-price">{money(c.current_price)}</div><span className={Number(c.daily_change_pct)>=0?'positive':'negative'}>{Number(c.daily_change_pct||0).toFixed(2)}% today</span><Sparkline values={prices.filter(p=>p.symbol===c.symbol).sort((a,b)=>new Date(a.price_date)-new Date(b.price_date)).map(p=>Number(p.close_price))}/></div>)}</div><div className="panel"><div className="panel-head"><div><p className="eyebrow">OHLC DATA</p><h3>Historical market prices</h3></div></div><div className="table-wrap"><table><thead><tr><th>Date</th><th>Contract</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>Volume</th></tr></thead><tbody>{prices.map(p=><tr key={`${p.symbol}-${p.price_date}`}><td>{p.price_date}</td><td><strong>{p.symbol}</strong></td><td>{money(p.open_price)}</td><td>{money(p.high_price)}</td><td>{money(p.low_price)}</td><td><strong>{money(p.close_price)}</strong></td><td>{Number(p.volume).toLocaleString('en-IN')}</td></tr>)}</tbody></table></div></div></Page>}
@@ -71,6 +86,6 @@ function App() {
 }
 
 function Page({title, subtitle, children}) { return <><div className="page-intro"><p className="eyebrow">NCDEX SIMULATION</p><h2>{title}</h2><p>{subtitle}</p></div>{children}</> }
-function TradeTable({rows}) { return <div className="table-wrap"><table><thead><tr><th>Time</th><th>Contract</th><th>Buyer</th><th>Seller</th><th>Price</th><th>Quantity</th><th>Notional</th></tr></thead><tbody>{rows.map(t=><tr key={t.trade_id}><td>{new Date(t.trade_time).toLocaleDateString('en-IN')}</td><td><strong>{t.symbol}</strong></td><td>{t.buyer_name}</td><td>{t.seller_name}</td><td>{money(t.price)}</td><td>{t.quantity}</td><td><strong>{money(t.notional_value)}</strong></td></tr>)}</tbody></table></div> }
+function TradeTable({rows}) { return <div className="table-wrap"><table><thead><tr><th>Time</th><th>Contract</th><th>Buyer</th><th>Seller</th><th>Price</th><th>Quantity</th><th>Notional</th></tr></thead><tbody>{rows.map(t=><tr key={t.trade_id}><td>{formatTradeTime(t.trade_time)}</td><td><strong>{t.symbol}</strong></td><td>{t.buyer_name}</td><td>{t.seller_name}</td><td>{money(t.price)}</td><td>{t.quantity}</td><td><strong>{money(t.notional_value)}</strong></td></tr>)}</tbody></table></div> }
 createRoot(document.getElementById('root')).render(<App />)
 
