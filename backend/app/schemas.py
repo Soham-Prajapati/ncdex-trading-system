@@ -30,7 +30,7 @@ class MarketPrice(ApiModel):
     low_price: Decimal
     close_price: Decimal
     volume: Decimal
-    daily_change_pct: Decimal
+    daily_change_pct: Decimal | None = None
 
 
 class OrderCreate(BaseModel):
