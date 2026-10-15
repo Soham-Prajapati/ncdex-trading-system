@@ -23,6 +23,8 @@ psql "$DATABASE_URL_UNPOOLED" -f db/demo_seed.sql
 psql "$DATABASE_URL_UNPOOLED" -f db/rich_demo_seed.sql
 psql "$DATABASE_URL_UNPOOLED" -f db/migrations/004_scd2_infinity_dates.sql
 psql "$DATABASE_URL_UNPOOLED" -f db/scd_demo_seed.sql
+psql "$DATABASE_URL_UNPOOLED" -f db/migrations/005_live_simulation.sql
+psql "$DATABASE_URL_UNPOOLED" -f db/persona_seed.sql
 ```
 
 The application will later use the pooled `DATABASE_URL` from `.env.local`.
@@ -37,7 +39,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 set -a; source ../.env.local; set +a
-uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 In a second terminal:
@@ -47,6 +49,26 @@ cd frontend
 npm install
 npm run dev
 ```
+
+## Live faculty demo
+
+Open **Live simulation** (the default page) and press **Start live demo**. A 14-step scripted scenario plays every ~4.5 s:
+
+1. Opening bell — the NCDEX Liquidity Desk (simulated market maker) quotes five price levels on each side of every contract.
+2. Monsoon-deficit news → the textile mill buys cotton at market, consuming offer levels, so the last traded price (LTP) rises.
+3. A speculator chases the move; the FPO farmer posts a resting sell limit above the market as a hedge.
+4. **SCD2:** the farmer's address changes (new warehouse) — `trader_history` closes the old row (`to_date = now`, `current_flag = N`) and opens a new current row (`to_date = ∞`, `current_flag = Y`).
+5. The mill buys again and fills against the farmer's resting offer; the speculator books profit and the price falls back.
+6. **SCD2:** the exchange revises the cotton minimum lot (`commodity_history`), and the speculator's risk/KYC tier is upgraded.
+7. Jeera and soybean hedges, then rain returns and the farmer sells more.
+
+Each trader quadrant (2 × 2 grid, any participant selectable) glows green/red/purple when that person buys, sells or changes profile, and the rail explains *why* the price moved. **Buy/Sell** buttons on each quadrant place live market orders; the **SCD v… ✎** chip opens the profile editor. **Random market flow** adds continuous background orders and occasional profile changes. **Presenter mode** hides the navigation for projection.
+
+Second device: `npm run dev` binds to the LAN (`vite --host`) and the API listens on `0.0.0.0:8000`, so a phone/tablet on the same Wi-Fi can open `http://<laptop-ip>:5173/#live` (or `#traders`) and see the same state.
+
+The **Traders & SCD2** page shows every participant's physical `trader_history` and `user_history` rows, a cross-dimension change log (`analytics.v_scd_change_log`, with `field: old → new` diffs), and an admin form that versions commodity contract terms.
+
+Every execution also lands in `price_ticks` (with its narrative) and updates today's OHLC row in `market_prices`, so Power BI picks up the simulation on refresh.
 
 ## Neon
 

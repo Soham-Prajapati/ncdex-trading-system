@@ -1,6 +1,6 @@
 # Current project state
 
-Last updated: 2026-10-06
+Last updated: 2026-10-12
 
 ## Objective
 
@@ -16,7 +16,11 @@ Build the NCDEX Trading System simulation for Group 100 with React/Vite, FastAPI
 - Power BI semantic model `NCDEX Trading Analytics` and report `NCDEX Trading Analytics Report` are persisted in My workspace with seven analytics views loaded.
 - Power BI connection instructions are in `docs/POWER_BI.md`.
 
+- 2026-10-12: Live simulation built (uncommitted at time of writing): migration 005 (trader profile SCD2 `trader_history`, `price_ticks`, `v_scd_change_log`/`v_trader_history`/`v_trader_profiles`/`v_price_ticks`), `db/persona_seed.sql` (5 personas + liquidity-desk market maker), `backend/app/engine.py` (two-round-trip matching, market maker, scripted 14-step scenario, random flow), and Live simulation 2×2 grid + Traders & SCD2 pages. Both applied to Neon main and verified in the browser.
+
 ## Blockers
+
+- 2026-10-12: Claude in Chrome extension (both connected browsers) timed out, so the Power BI report composition was not done; spec for new views/measures is in `docs/POWER_BI_DASHBOARDS.md`.
 
 - Power BI report persistence is complete, but the report canvas still needs visual composition and scheduled refresh configuration.
 - The live app is ready for human verification with the local backend/frontend commands in the root README.

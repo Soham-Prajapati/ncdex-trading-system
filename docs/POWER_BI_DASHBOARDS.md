@@ -12,6 +12,31 @@ The Neon connection has been used to create these saved artifacts in **My worksp
 
 The report currently has the seven analytics views loaded as its model. The report canvas still needs the visual composition below to be laid out in Power BI's editor.
 
+## Views added for the live simulation (migration 005)
+
+Add these to the semantic model (Transform data / Get data → same Neon source → `analytics` schema):
+
+- `v_scd_change_log` — one row per SCD2 version across trader profile, user account and commodity, with a readable `changed_fields` diff (`city: Akola → Amravati`), `from_date`, `to_date` (infinity for current), `current_flag`.
+- `v_trader_history` — physical trader-profile SCD2 rows with `version_no`.
+- `v_trader_profiles` — current profile, cash, position value, unrealised and realised P&L per trader.
+- `v_price_ticks` — every live execution: aggressor, side, previous price, new price, change %, narrative.
+
+Suggested measures:
+
+```DAX
+SCD Versions = COUNTROWS(v_scd_change_log)
+Current Versions = CALCULATE(COUNTROWS(v_scd_change_log), v_scd_change_log[current_flag] = "Y")
+Closed Versions = [SCD Versions] - [Current Versions]
+Live Ticks = COUNTROWS(v_price_ticks)
+Buyer-initiated Move = CALCULATE(SUM(v_price_ticks[price_change]), v_price_ticks[aggressor_side] = "buy")
+Seller-initiated Move = CALCULATE(SUM(v_price_ticks[price_change]), v_price_ticks[aggressor_side] = "sell")
+Total P&L = SUM(v_trader_profiles[unrealized_pnl]) + SUM(v_trader_profiles[realized_pnl])
+```
+
+Power BI cannot display `infinity`; in Power Query replace errors in `to_date` with `#datetime(9999,12,31,0,0,0)` (or keep `current_flag` as the filter).
+
+Pages to add: **Live simulation** (tick line by `tick_time`, price change by `aggressor_name`, narrative table), **SCD2 audit** (cards: SCD Versions / Current / Closed; table of `v_scd_change_log`; slicer on `dimension`), **Participants** (P&L by trader from `v_trader_profiles`).
+
 ## Faculty overview
 
 - KPI cards: traded notional, traded quantity, trade count, active traders.

@@ -1,0 +1,179 @@
+/* Live simulation, traders & SCD2 pages. Builds on the tokens in styles.css. */
+.app-shell.presenting .sidebar,.app-shell.presenting .topbar{display:none}
+.app-shell.presenting .main{margin-left:0;padding:14px 18px 24px;max-width:none}
+.main:has(.live){max-width:none}
+.live{display:flex;flex-direction:column;gap:14px}
+.panel.compact{padding:16px 18px}
+.panel.compact h3{font-size:16px}
+.unit{font-size:11px;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+
+/* control bar */
+.control-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#112a2b;border-radius:16px;padding:12px 14px;color:#d5f4e8}
+.control-main{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.big-button{border:0;background:#8fe0ba;color:#0f3430;font:800 14px Manrope;padding:12px 20px;border-radius:12px;cursor:pointer;display:inline-flex;gap:10px;align-items:center;box-shadow:0 0 0 0 #8fe0ba88;animation:pulse 2.4s infinite}
+.big-button.pause{background:#f4cf73;animation:none}
+.big-button.small{padding:9px 14px;font-size:12px;animation:none}
+.big-button:disabled{opacity:.6;cursor:wait}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #8fe0ba88}70%{box-shadow:0 0 0 12px #8fe0ba00}100%{box-shadow:0 0 0 0 #8fe0ba00}}
+.ghost-button{border:1px solid #3d6663;background:transparent;color:#cfe9e1;font:700 12px Manrope;padding:10px 13px;border-radius:10px;cursor:pointer}
+.panel .ghost-button,.modal .ghost-button,.contract-form .ghost-button{border-color:var(--line);color:#2f6f63}
+.ghost-button:disabled{opacity:.4}
+.toggle{display:inline-flex;align-items:center;gap:8px;font:700 12px Manrope;cursor:pointer;color:#cfe9e1}
+.toggle input{display:none}
+.toggle i{width:34px;height:19px;border-radius:99px;background:#3d6663;position:relative;transition:.2s}
+.toggle i::after{content:'';position:absolute;top:3px;left:3px;width:13px;height:13px;border-radius:50%;background:#fff;transition:.2s}
+.toggle.on i{background:#62d99c}.toggle.on i::after{left:18px}
+.scenario-track{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.scenario-track .dot{width:9px;height:9px;border-radius:50%;background:#2d5552}
+.scenario-track .dot.done{background:#62d99c}
+.scenario-track .dot.next{background:#f4cf73;box-shadow:0 0 0 3px #f4cf7344}
+.scenario-track small{margin-left:8px;font:500 11px 'DM Mono',monospace;color:#9bd7bf}
+
+/* tickers */
+.ticker-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.ticker{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;text-align:left;display:flex;flex-direction:column;gap:3px;cursor:pointer;font-family:Manrope;color:var(--ink)}
+.ticker.active{border-color:#14a78b;box-shadow:inset 0 3px #14a78b}
+.ticker.stats{cursor:default;background:#f2edff;border-color:#ded5ff}
+.ticker-sym{font:500 10px 'DM Mono',monospace;letter-spacing:.12em;color:#8a9996}
+.ticker strong{font-size:21px;letter-spacing:-.04em}
+.ticker small{font-size:12px;font-weight:700}
+.ticker em{font-style:normal;font-size:10px;color:var(--muted)}
+.ticker-ltp{animation:tick 1.2s ease-out}
+.ticker-ltp.up{animation-name:tickup}.ticker-ltp.down{animation-name:tickdown}
+@keyframes tickup{from{background:#c9f2dc}to{background:transparent}}
+@keyframes tickdown{from{background:#f8d2d2}to{background:transparent}}
+
+/* main layout */
+.live-layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(330px,1fr);gap:14px}
+.trader-grid{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:12px}
+.market-rail{display:flex;flex-direction:column;gap:12px;min-width:0}
+.live-bottom{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(330px,1fr);gap:14px}
+
+/* trader quadrant */
+.trader-card{--accent:#14a78b;background:#fff;border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:15px;padding:14px 15px;display:flex;flex-direction:column;gap:10px;min-width:0;transition:box-shadow .3s,transform .3s}
+.trader-card.empty{align-items:center;justify-content:center;color:var(--muted);min-height:200px}
+.trader-card header{display:flex;align-items:center;gap:10px}
+.trader-avatar{--accent:#14a78b;width:40px;height:40px;flex:none;border-radius:12px;background:var(--accent);color:#fff;display:grid;place-items:center;font:800 13px Manrope}
+.trader-avatar.sm{width:32px;height:32px;font-size:11px;border-radius:10px}
+.trader-id{flex:1;min-width:0;display:flex;flex-direction:column}
+.trader-id select{border:0;background:transparent;font:800 15px Manrope;color:var(--ink);padding:0;margin-left:-3px;cursor:pointer;max-width:100%}
+.trader-id span{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scd-chip{border:1px solid #ded5ff;background:#f2edff;color:#6650be;font:500 10px 'DM Mono',monospace;padding:6px 8px;border-radius:7px;cursor:pointer;white-space:nowrap}
+.trader-meta{display:flex;flex-direction:column;gap:3px;font-size:11px;color:#54635f}
+.trader-meta .addr{font-weight:700;color:var(--ink)}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
+.chips i{font-style:normal;font:500 9px 'DM Mono',monospace;background:#eef4f2;color:#57706a;padding:4px 6px;border-radius:5px}
+.trader-numbers{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:#f7faf9;border-radius:10px;padding:9px 10px}
+.trader-numbers small{display:block;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.trader-numbers strong{font-size:14px;letter-spacing:-.03em}
+.trader-numbers em{display:block;font-style:normal;font-size:9px;color:var(--muted)}
+.trader-action{flex:1;font-size:11px;line-height:1.5;color:#3c4a47;min-height:64px}
+.trader-action p{margin:6px 0 2px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.trader-action time{font:500 9px 'DM Mono',monospace;color:#9aa9a5}
+.action-tag{font:700 9px 'DM Mono',monospace;padding:4px 7px;border-radius:5px;background:#eef4f2;color:#57706a}
+.action-tag.buy{background:#ddf4e7;color:#237b5c}.action-tag.sell{background:#fbe3e3;color:#ac5d5d}.action-tag.scd{background:#ece6ff;color:#6650be}
+.trader-card footer{display:flex;gap:7px}
+.trader-card footer select{border:1px solid var(--line);border-radius:8px;padding:0 6px;font:600 12px Manrope;background:#fff}
+.trader-card footer button{flex:1;border:0;border-radius:8px;padding:9px 6px;font:800 11px Manrope;cursor:pointer}
+.trader-card footer .buy{background:#ddf4e7;color:#1d6e51}.trader-card footer .sell{background:#fbe3e3;color:#a14f4f}
+.trader-card footer button:hover{filter:brightness(.95)}
+.flash-buy{animation:glowbuy 3.2s ease-out}.flash-sell{animation:glowsell 3.2s ease-out}.flash-scd{animation:glowscd 3.2s ease-out}
+@keyframes glowbuy{0%{box-shadow:0 0 0 4px #31c48d,0 10px 30px #31c48d55;transform:scale(1.015)}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes glowsell{0%{box-shadow:0 0 0 4px #e06c6c,0 10px 30px #e06c6c55;transform:scale(1.015)}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes glowscd{0%{box-shadow:0 0 0 4px #8a72e6,0 10px 30px #8a72e655;transform:scale(1.015)}100%{box-shadow:0 0 0 0 transparent}}
+
+/* spotlight */
+.spotlight{border-radius:15px;padding:15px 17px;background:#1b4643;color:#e3f4ee;animation:enter .5s ease-out}
+.spotlight .eyebrow{color:#9bd7bf}
+.spotlight h3{margin:6px 0;font-size:20px;letter-spacing:-.03em}
+.spotlight h3 span{font-size:14px;margin-left:6px}
+.spotlight p:not(.eyebrow){margin:0;font-size:12px;line-height:1.6;color:#cfe5de}
+.spotlight.up{background:#14533f}.spotlight.up h3 span{color:#8ff0bd}
+.spotlight.down{background:#5a2626}.spotlight.down h3 span{color:#ffb0a8}.spotlight.down .eyebrow{color:#f5b7b0}
+.spotlight.scd{background:#3b2f7a}.spotlight.scd .eyebrow{color:#c9bcff}
+.spotlight.news{background:#5b4410}.spotlight.news .eyebrow{color:#f4d488}
+.spotlight.idle{background:#eef6f3;color:var(--ink)}.spotlight.idle p:not(.eyebrow){color:var(--muted)}
+@keyframes enter{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+/* price chart */
+.price-chart{margin-top:8px}
+.price-chart svg{width:100%;height:170px;display:block}
+.price-chart .ref-line{stroke:#b8c7c3;stroke-dasharray:4 4;stroke-width:1;vector-effect:non-scaling-stroke}
+.price-chart circle.buy{fill:#1ba98e;stroke:#fff;stroke-width:1}.price-chart circle.sell{fill:#d06767;stroke:#fff;stroke-width:1}
+.chart-scale{display:flex;justify-content:space-between;font:500 9px 'DM Mono',monospace;color:#9aa9a5;margin-top:4px}
+.legend{display:flex;gap:6px;align-items:center;font-size:10px;color:var(--muted);margin-top:4px}
+.legend i{width:8px;height:8px;border-radius:50%;display:inline-block}.legend i.buy{background:#1ba98e}.legend i.sell{background:#d06767;margin-left:8px}
+
+/* order book */
+.order-book .book-head,.book-row{display:grid;grid-template-columns:100px 60px 1fr;gap:8px;font:500 11px 'DM Mono',monospace;padding:4px 8px;position:relative}
+.order-book .book-head{color:#91a09d;font-size:9px;letter-spacing:.08em;text-transform:uppercase;margin-top:10px}
+.book-row .bar{position:absolute;right:0;top:1px;bottom:1px;border-radius:4px;opacity:.16}
+.book-row.sell .bar{background:#d06767}.book-row.buy .bar{background:#1ba98e}
+.book-row.sell .px{color:#b45454}.book-row.buy .px{color:#1f8a68}
+.book-row .who{color:#5c6c69;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:Manrope;font-size:10px}
+.book-mid{text-align:center;font:700 11px 'DM Mono',monospace;color:var(--ink);border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);padding:5px;margin:3px 0}
+
+/* SCD table & feed */
+.scd-table{max-height:360px;overflow:auto}
+.scd-table td.changes,.table-wrap td.changes{white-space:normal;min-width:200px;color:var(--ink);font-weight:600}
+td.reason{white-space:normal;min-width:140px}
+.scd-table td{vertical-align:top}.scd-table .dim{display:inline-block;margin-top:5px}
+td.infinity{font:700 15px 'DM Mono',monospace;color:#6650be}
+.flag{font:700 10px 'DM Mono',monospace;padding:3px 7px;border-radius:5px}
+.flag.Y{background:#ddf4e7;color:#237b5c}.flag.N{background:#eef0f0;color:#8c9996}
+.dim{font:500 9px 'DM Mono',monospace;padding:4px 6px;border-radius:5px;white-space:nowrap}
+.dim.trader{background:#ece6ff;color:#6650be}.dim.user{background:#e2ecfb;color:#3c6cb4}.dim.commodity{background:#fdf0d6;color:#9a6a12}
+tr.row-new td{animation:rownew 7s ease-out}
+@keyframes rownew{0%,30%{background:#ece6ff}100%{background:transparent}}
+tr.closed td{color:#9aa9a5}tr.current td{background:#f7fcf9}
+.feed{list-style:none;margin:10px 0 0;padding:0;max-height:360px;overflow:auto;display:flex;flex-direction:column;gap:7px}
+.feed li{border-left:3px solid #c7d4d0;padding:6px 10px;background:#f9fbfa;border-radius:0 8px 8px 0}
+.feed li.up{border-color:#1ba98e}.feed li.down{border-color:#d06767}.feed li.scd{border-color:#8a72e6}.feed li.news{border-color:#e7b43f}
+.feed li.new{animation:rownew 6s ease-out}
+.feed time{font:500 9px 'DM Mono',monospace;color:#9aa9a5}
+.feed p{margin:2px 0 0;font-size:11px;line-height:1.55;color:#3c4a47}
+
+/* modal & forms */
+.modal-backdrop{position:fixed;inset:0;background:#0b1d1ecc;display:grid;place-items:center;z-index:20;padding:16px}
+.modal{background:#fff;border-radius:18px;padding:22px;width:min(760px,100%);max-height:92vh;overflow:auto}
+.profile-form{display:flex;flex-direction:column;gap:14px}
+.form-head{display:flex;gap:12px;align-items:center}
+.form-head h3{margin:4px 0 0}
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.profile-form label{display:flex;flex-direction:column;gap:5px;font:700 10px Manrope;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.profile-form input,.profile-form select,.contract-form input,.contract-form select{border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:600 13px Manrope;color:var(--ink);background:#fff;text-transform:none;letter-spacing:0}
+.profile-form label.dirty input,.profile-form label.dirty select{border-color:#8a72e6;background:#f6f2ff}
+.profile-form label.dirty{color:#6650be}
+.form-hint{font-size:12px;color:#54635f;margin:0;line-height:1.6}
+.form-hint code{font:500 11px 'DM Mono',monospace;background:#eef4f2;padding:1px 4px;border-radius:4px}
+.form-actions{display:flex;justify-content:flex-end;gap:10px}
+.info-banner{background:#f2edff;border:1px solid #ded5ff;color:#4c3e95;padding:12px 15px;border-radius:9px;margin-bottom:16px;font-size:12px;line-height:1.6}
+.info-banner button{float:right;border:0;background:transparent;font-size:16px;color:#6650be;cursor:pointer}
+
+/* traders page */
+.traders-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px;margin-bottom:16px;align-items:start}
+.trader-list{display:flex;flex-direction:column;gap:4px}
+.trader-row{display:flex;align-items:center;gap:10px;border:0;background:transparent;padding:9px;border-radius:10px;cursor:pointer;text-align:left;font-family:Manrope}
+.trader-row:hover,.trader-row.active{background:#eef6f3}
+.trader-row span:nth-child(2){flex:1;display:flex;flex-direction:column}
+.trader-row strong{font-size:13px;color:var(--ink)}.trader-row small{font-size:10px;color:var(--muted)}
+.trader-row .ver{font:500 10px 'DM Mono',monospace;color:#6650be;background:#f2edff;padding:3px 6px;border-radius:5px}
+.profile-head{display:flex;gap:14px;align-items:center}
+.profile-head>div{flex:1}.profile-head h3{margin:4px 0}.profile-head p{margin:0;font-size:12px}
+.profile-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0 4px}
+.profile-stats div{background:#f7faf9;border-radius:10px;padding:10px 12px}
+.profile-stats small{display:block;font-size:10px;color:var(--muted)}.profile-stats strong{font-size:14px}
+.section-label{margin:20px 0 0;text-transform:uppercase}
+.seg{display:flex;gap:4px;background:#eef4f2;padding:3px;border-radius:9px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;font:700 11px Manrope;color:#57706a;padding:6px 10px;border-radius:7px;cursor:pointer}
+.seg button.active{background:#fff;color:var(--ink);box-shadow:0 1px 2px #0001}
+.contract-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px;background:#fffaf0;border:1px dashed #ecd9a6;border-radius:10px;padding:10px}
+.contract-form input{width:110px}.contract-form input.wide{flex:1;min-width:200px}
+.report-card a{display:block;color:#5f55b1;font-size:11px;font-weight:700;margin-top:20px;text-decoration:none}
+
+@media(max-width:1250px){.live-layout,.live-bottom{grid-template-columns:1fr}.ticker-strip{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.traders-layout{grid-template-columns:1fr}.form-grid{grid-template-columns:repeat(2,1fr)}.profile-stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.trader-grid{grid-template-columns:1fr}.ticker-strip{grid-template-columns:1fr 1fr}.control-bar{padding:10px}.big-button{padding:11px 14px}.form-grid{grid-template-columns:1fr}}
+@media(max-width:900px){.brand>div:last-child{display:none}}
+@media(max-width:600px){.header-actions .refresh{display:none}.topbar h1{font-size:20px}.main{padding:16px 10px}}
