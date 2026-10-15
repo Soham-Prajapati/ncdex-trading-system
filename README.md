@@ -7,7 +7,7 @@ The target architecture is:
 - React + Vite frontend;
 - FastAPI backend;
 - Neon Postgres operational database;
-- Python/Pandas analytics pipeline;
+- PostgreSQL `analytics.*` views for aggregations (no Pandas pipeline);
 - Power BI dashboards over read-only `analytics` views.
 
 Kafka from the earlier diagram is intentionally not part of the first implementation scope, matching the final architecture direction supplied for this project.
